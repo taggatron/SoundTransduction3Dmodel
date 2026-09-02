@@ -309,7 +309,7 @@ button {
 }
 
 .panel-dock:not(.collapsed) .dock-arrow {
-  transform: rotate(0deg);
+  transform: rotate(180deg);
   display: inline-block;
   transition: transform 0.2s ease;
 }
@@ -336,6 +336,12 @@ button {
   justify-content: space-between;
   border-bottom: 1px solid var(--border-subtle);
   padding-bottom: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.panel-header:hover .panel-title {
+  color: #38bdf8;
 }
 
 .panel-title {

@@ -193,33 +193,43 @@ export class UIController {
 
     // 12. Collapsible Docks (Sound Wave Engine & View Docks)
     const toggleSound = (e) => {
-      if (e.target.closest('#btn-play-pause')) return;
-      this.soundDock.classList.toggle('collapsed');
+      if (e) {
+        // If clicking Play/Pause button inside header, do not toggle dock
+        if (e.target.closest('#btn-play-pause')) return;
+        e.stopPropagation();
+      }
+      const isNowCollapsed = this.soundDock.classList.toggle('collapsed');
+      if (this.btnToggleSoundDock) {
+        this.btnToggleSoundDock.title = isNowCollapsed ? 'Expand panel' : 'Collapse panel';
+        this.btnToggleSoundDock.setAttribute('aria-expanded', !isNowCollapsed);
+      }
     };
+
     if (this.btnToggleSoundDock) {
       this.btnToggleSoundDock.addEventListener('click', toggleSound);
     }
     if (this.soundDockHeader) {
-      this.soundDockHeader.addEventListener('click', (e) => {
-        if (this.soundDock.classList.contains('collapsed')) {
-          toggleSound(e);
-        }
-      });
+      this.soundDockHeader.addEventListener('click', toggleSound);
     }
 
     const toggleView = (e) => {
-      if (e.target.closest('#btn-reset-cam')) return;
-      this.viewDock.classList.toggle('collapsed');
+      if (e) {
+        // If clicking Reset View button inside header, do not toggle dock
+        if (e.target.closest('#btn-reset-cam')) return;
+        e.stopPropagation();
+      }
+      const isNowCollapsed = this.viewDock.classList.toggle('collapsed');
+      if (this.btnToggleViewDock) {
+        this.btnToggleViewDock.title = isNowCollapsed ? 'Expand panel' : 'Collapse panel';
+        this.btnToggleViewDock.setAttribute('aria-expanded', !isNowCollapsed);
+      }
     };
+
     if (this.btnToggleViewDock) {
       this.btnToggleViewDock.addEventListener('click', toggleView);
     }
     if (this.viewDockHeader) {
-      this.viewDockHeader.addEventListener('click', (e) => {
-        if (this.viewDock.classList.contains('collapsed')) {
-          toggleView(e);
-        }
-      });
+      this.viewDockHeader.addEventListener('click', toggleView);
     }
   }
 
