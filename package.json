@@ -1,0 +1,18 @@
+{
+  "name": "human-ear-3d-simulation",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "three": "^0.185.1",
+    "lucide": "^1.39.0"
+  },
+  "devDependencies": {
+    "vite": "^6.2.0"
+  }
+}
