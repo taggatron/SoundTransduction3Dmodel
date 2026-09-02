@@ -8,132 +8,230 @@ import * as THREE from 'three';
 // ==========================================
 // 1. EXTERNAL EAR: PINNA / AURICLE
 // ==========================================
+// ==========================================
+// 1. EXTERNAL EAR: PINNA / AURICLE (UNIFIED SEAMLESS MESH)
+// ==========================================
 export function createPinnaGeometry() {
-  // Construct pinna using parametric curves representing helix, antihelix, concha, and lobule
-  const group = new THREE.Group();
-  group.name = 'pinna_group';
+  /**
+   * Generates a unified, seamless, water-tight solid 3D mesh of the human auricle (pinna).
+   * Joins the helix, antihelix, triangular fossa, scaphoid fossa, concha, tragus,
+   * antitragus, and lobule into a single continuous organic surface with smooth normals
+   * and realistic cartilage thickness.
+   */
+  const numTheta = 64; // Angular slices around perimeter
+  const numR = 32;     // Concentric radial rings from meatus to outer helix
 
-  // --- Helix (outer rim) ---
-  const helixPoints = [];
-  const numHelixPts = 32;
-  for (let i = 0; i <= numHelixPts; i++) {
-    const t = i / numHelixPts;
-    const angle = -0.4 + t * Math.PI * 1.55;
-    // Auricular radius varying from crus to lobe
-    const rX = 2.4 * Math.sin(angle * 0.95);
-    const rY = 3.6 * Math.cos(angle * 0.95);
-    const zOffset = -0.5 * Math.sin(t * Math.PI) + 0.3 * Math.cos(angle);
-    helixPoints.push(new THREE.Vector3(zOffset, rY, rX));
+  const positions = [];
+  const normals = [];
+  const uvs = [];
+  const indices = [];
+
+  // Helper to compute outer auricular boundary in (Y = vertical, Z = anterior-posterior)
+  function getOuterBoundary(theta) {
+    const sin = Math.sin(theta);
+    const cos = Math.cos(theta);
+
+    // Vertical elongation: ~3.5 superior (+Y), ~-3.2 inferior (-Y)
+    const rY = sin >= 0 ? 3.55 * sin : 3.25 * sin;
+
+    // Horizontal width: ~1.25 anterior (+Z), ~2.45 posterior (-Z)
+    let rZ = cos >= 0 ? 1.25 * cos : 2.45 * cos;
+
+    // Posterosuperior flare (Darwin's tubercle curve)
+    if (sin > 0.15 && cos < -0.1) {
+      rZ -= 0.3 * Math.sin(theta);
+    }
+    // Fleshy lobule flare at inferior pole
+    if (sin < -0.2) {
+      rZ += 0.35 * Math.sin(theta + 0.4);
+    }
+
+    return { y: rY, z: rZ };
   }
-  const helixCurve = new THREE.CatmullRomCurve3(helixPoints);
-  const helixGeo = new THREE.TubeGeometry(helixCurve, 48, 0.32, 12, false);
 
-  // --- Antihelix & Scaphoid Fossa (inner ridge) ---
-  const antihelixPoints = [];
-  for (let i = 0; i <= 24; i++) {
-    const t = i / 24;
-    const angle = -0.1 + t * Math.PI * 1.35;
-    const rX = 1.6 * Math.sin(angle * 0.95);
-    const rY = 2.5 * Math.cos(angle * 0.95) - 0.2;
-    const zOffset = -0.2 * Math.sin(t * Math.PI) + 0.2;
-    antihelixPoints.push(new THREE.Vector3(zOffset, rY, rX));
+  // Inner meatus boundary (junction with ear canal)
+  function getInnerBoundary(theta) {
+    return {
+      y: 0.2 + 0.42 * Math.sin(theta),
+      z: 0.15 + 0.36 * Math.cos(theta),
+    };
   }
-  const antihelixCurve = new THREE.CatmullRomCurve3(antihelixPoints);
-  const antihelixGeo = new THREE.TubeGeometry(antihelixCurve, 36, 0.26, 10, false);
 
-  // Superior & Inferior Crus of Antihelix
-  const supCrusPts = [
-    new THREE.Vector3(0.1, 1.8, 0.3),
-    new THREE.Vector3(-0.1, 2.3, 0.8),
-    new THREE.Vector3(-0.3, 2.7, 1.3),
-  ];
-  const supCrusCurve = new THREE.CatmullRomCurve3(supCrusPts);
-  const supCrusGeo = new THREE.TubeGeometry(supCrusCurve, 16, 0.22, 8, false);
+  // Evaluates front skin surface point (X = lateral-medial, Y = superior-inferior, Z = anterior-posterior)
+  function evaluateEarSurface(theta, v) {
+    const sin = Math.sin(theta);
+    const cos = Math.cos(theta);
 
-  const infCrusPts = [
-    new THREE.Vector3(0.1, 1.8, 0.3),
-    new THREE.Vector3(0.0, 1.6, -0.4),
-    new THREE.Vector3(-0.2, 1.2, -1.0),
-  ];
-  const infCrusCurve = new THREE.CatmullRomCurve3(infCrusPts);
-  const infCrusGeo = new THREE.TubeGeometry(infCrusCurve, 16, 0.2, 8, false);
+    const inner = getInnerBoundary(theta);
+    const outer = getOuterBoundary(theta);
 
-  // --- Concha (deep acoustic bowl channeling into canal) ---
-  const conchaShape = new THREE.Shape();
-  conchaShape.moveTo(-0.2, -0.8);
-  conchaShape.quadraticCurveTo(1.2, -0.8, 1.3, 0.8);
-  conchaShape.quadraticCurveTo(0.8, 1.6, -0.4, 1.3);
-  conchaShape.quadraticCurveTo(-1.1, 0.6, -1.0, -0.2);
-  conchaShape.quadraticCurveTo(-0.8, -0.8, -0.2, -0.8);
+    // Interpolate base planar coordinates
+    let y = (1 - v) * inner.y + v * outer.y;
+    let z = (1 - v) * inner.z + v * outer.z;
 
-  const conchaGeo = new THREE.ExtrudeGeometry(conchaShape, {
-    depth: 0.8,
-    bevelEnabled: true,
-    bevelSegments: 4,
-    steps: 2,
-    bevelSize: 0.25,
-    bevelThickness: 0.2,
-  });
-  conchaGeo.rotateY(Math.PI / 2);
-  conchaGeo.scale(0.85, 0.85, 0.85);
-  conchaGeo.translate(-0.6, 0.2, 0.1);
+    // 1. Base auriculocephalic flare (ear tilts outward away from skull posteriorly)
+    let x = -0.38 + v * (0.35 - 0.52 * cos);
 
-  // --- Tragus (anterior cartilaginous projection) ---
-  const tragusShape = new THREE.Shape();
-  tragusShape.moveTo(0, 0);
-  tragusShape.lineTo(0.6, 0.8);
-  tragusShape.lineTo(-0.1, 1.3);
-  tragusShape.lineTo(-0.5, 0.7);
-  tragusShape.closePath();
-  const tragusGeo = new THREE.ExtrudeGeometry(tragusShape, {
-    depth: 0.25,
-    bevelEnabled: true,
-    bevelSegments: 3,
-    bevelSize: 0.15,
-    bevelThickness: 0.15,
-  });
-  tragusGeo.rotateY(-Math.PI / 2);
-  tragusGeo.scale(0.8, 0.8, 0.8);
-  tragusGeo.translate(0.1, -0.3, 0.95);
+    // 2. Concha Bowl (deep cavity funneling into meatus)
+    if (v < 0.42) {
+      const conchaFactor = Math.pow(1 - v / 0.42, 2);
+      x -= 0.52 * conchaFactor;
+    }
 
-  // --- Antitragus ---
-  const antitragusGeo = new THREE.SphereGeometry(0.35, 12, 10);
-  antitragusGeo.scale(1.2, 0.8, 0.9);
-  antitragusGeo.translate(0.0, -1.1, 0.2);
+    // 3. Tragus (anterior flap guarding canal: theta ~ 0, v ~ 0.15 to 0.48)
+    const dThetaTragus = theta / 0.35;
+    const dvTragus = (v - 0.32) / 0.14;
+    const tragusIntensity = Math.exp(-dThetaTragus * dThetaTragus - dvTragus * dvTragus);
+    x += 0.52 * tragusIntensity;
+    z -= 0.32 * tragusIntensity; // project slightly backward over meatus
 
-  // --- Lobule (earlobe) ---
-  const lobeShape = new THREE.Shape();
-  lobeShape.moveTo(0, 0);
-  lobeShape.quadraticCurveTo(1.2, -0.3, 1.0, -1.8);
-  lobeShape.quadraticCurveTo(0.1, -2.6, -0.9, -1.8);
-  lobeShape.quadraticCurveTo(-1.2, -0.8, 0, 0);
-  const lobeGeo = new THREE.ExtrudeGeometry(lobeShape, {
-    depth: 0.5,
-    bevelEnabled: true,
-    bevelSegments: 4,
-    bevelSize: 0.35,
-    bevelThickness: 0.3,
-  });
-  lobeGeo.rotateY(Math.PI / 2);
-  lobeGeo.scale(0.85, 0.85, 0.85);
-  lobeGeo.translate(-0.35, -1.6, -0.1);
+    // 4. Antitragus (tubercle opposite tragus: theta ~ -1.0, v ~ 0.25 to 0.48)
+    const normTheta = theta > Math.PI ? theta - Math.PI * 2 : theta;
+    const dThetaAntitragus = (normTheta + 1.0) / 0.28;
+    const dvAntitragus = (v - 0.36) / 0.13;
+    const antitragusIntensity = Math.exp(-dThetaAntitragus * dThetaAntitragus - dvAntitragus * dvAntitragus);
+    x += 0.42 * antitragusIntensity;
 
-  // Concha back plate (connecting ear tissue)
-  const backPlateGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.4, 20);
-  backPlateGeo.rotateZ(Math.PI / 2);
-  backPlateGeo.translate(-0.4, 0.3, 0.1);
+    // 5. Antihelix Y-shaped Ridge (v ~ 0.50 to 0.74, theta ~ -0.6 to 2.5)
+    if (normTheta > -0.6 && normTheta < 2.5) {
+      let antihelixV = 0.58 + 0.08 * sin;
+      let antihelixAmp = 0.42;
 
-  return {
-    helixGeo,
-    antihelixGeo,
-    supCrusGeo,
-    infCrusGeo,
-    conchaGeo,
-    tragusGeo,
-    antitragusGeo,
-    lobeGeo,
-    backPlateGeo,
-  };
+      // Bifurcation into superior & inferior crura
+      if (normTheta > 1.0 && normTheta < 2.2) {
+        // Superior crus
+        const dSup = Math.abs(v - (0.68 + 0.04 * cos));
+        // Inferior crus
+        const dInf = Math.abs(v - (0.48 - 0.05 * sin));
+        const supPeak = Math.exp(-Math.pow(dSup / 0.08, 2));
+        const infPeak = Math.exp(-Math.pow(dInf / 0.07, 2));
+
+        // Triangular fossa between crura (slight depression)
+        const fossaDist = Math.abs(v - 0.58);
+        const fossaDip = -0.15 * Math.exp(-Math.pow(fossaDist / 0.06, 2));
+
+        x += (supPeak * 0.38 + infPeak * 0.34 + fossaDip);
+      } else {
+        const dvAnti = Math.abs(v - antihelixV);
+        x += antihelixAmp * Math.exp(-Math.pow(dvAnti / 0.10, 2));
+      }
+    }
+
+    // 6. Scaphoid Fossa (trough between antihelix and outer helix)
+    if (v > 0.70 && v < 0.88 && normTheta > 0.1 && normTheta < 2.7) {
+      const dvScaphoid = Math.abs(v - 0.79);
+      x -= 0.14 * Math.exp(-Math.pow(dvScaphoid / 0.07, 2));
+    }
+
+    // 7. Outer Helix (rolled cartilaginous rim: v ~ 0.86 to 1.0)
+    if (v > 0.84 && (normTheta > -0.3 || normTheta < -1.8)) {
+      const uHelix = (v - 0.84) / 0.16; // 0 to 1
+      const roll = Math.sin(uHelix * Math.PI);
+      const helixHeight = 0.46 * roll;
+      x += helixHeight;
+    }
+
+    // 8. Lobule (earlobe: soft fleshy pad without cartilage ridges)
+    if (normTheta < -1.3 && normTheta > -2.4) {
+      const lobeDist = Math.hypot(normTheta + 1.8, v - 0.65);
+      const lobePillow = Math.max(0, 0.32 * (1 - lobeDist / 0.6));
+      x += lobePillow;
+    }
+
+    return { x, y, z };
+  }
+
+  // Build Front Surface Vertices
+  for (let i = 0; i <= numTheta; i++) {
+    const theta = (i / numTheta) * Math.PI * 2;
+    for (let j = 0; j <= numR; j++) {
+      const v = j / numR;
+      const pt = evaluateEarSurface(theta, v);
+      positions.push(pt.x, pt.y, pt.z);
+      uvs.push(i / numTheta, v);
+    }
+  }
+
+  // Build Back Surface Vertices (offset by realistic cartilage thickness)
+  const frontVertexCount = (numTheta + 1) * (numR + 1);
+  for (let i = 0; i <= numTheta; i++) {
+    const theta = (i / numTheta) * Math.PI * 2;
+    for (let j = 0; j <= numR; j++) {
+      const v = j / numR;
+      const pt = evaluateEarSurface(theta, v);
+
+      // Cartilage thickness: ~0.15 at thin helix edge, ~0.42 at dense concha base
+      const thickness = (0.16 + 0.28 * (1 - v * 0.8));
+      const backX = pt.x - thickness;
+
+      positions.push(backX, pt.y, pt.z);
+      uvs.push(i / numTheta, v);
+    }
+  }
+
+  // Generate Triangles for Front Surface
+  for (let i = 0; i < numTheta; i++) {
+    for (let j = 0; j < numR; j++) {
+      const row1 = i * (numR + 1);
+      const row2 = (i + 1) * (numR + 1);
+
+      const a = row1 + j;
+      const b = row1 + j + 1;
+      const c = row2 + j + 1;
+      const d = row2 + j;
+
+      indices.push(a, b, d);
+      indices.push(b, c, d);
+    }
+  }
+
+  // Generate Triangles for Back Surface (reversed winding)
+  for (let i = 0; i < numTheta; i++) {
+    for (let j = 0; j < numR; j++) {
+      const row1 = frontVertexCount + i * (numR + 1);
+      const row2 = frontVertexCount + (i + 1) * (numR + 1);
+
+      const a = row1 + j;
+      const b = row1 + j + 1;
+      const c = row2 + j + 1;
+      const d = row2 + j;
+
+      indices.push(a, d, b);
+      indices.push(b, d, c);
+    }
+  }
+
+  // Stitch Outer Rim Boundary (v = 1.0) between Front and Back Surfaces
+  for (let i = 0; i < numTheta; i++) {
+    const fA = i * (numR + 1) + numR;
+    const fB = (i + 1) * (numR + 1) + numR;
+
+    const bA = frontVertexCount + i * (numR + 1) + numR;
+    const bB = frontVertexCount + (i + 1) * (numR + 1) + numR;
+
+    indices.push(fA, fB, bA);
+    indices.push(fB, bB, bA);
+  }
+
+  // Stitch Inner Meatus Boundary (v = 0.0) between Front and Back Surfaces
+  for (let i = 0; i < numTheta; i++) {
+    const fA = i * (numR + 1);
+    const fB = (i + 1) * (numR + 1);
+
+    const bA = frontVertexCount + i * (numR + 1);
+    const bB = frontVertexCount + (i + 1) * (numR + 1);
+
+    indices.push(fA, bA, fB);
+    indices.push(fB, bA, bB);
+  }
+
+  const seamlessPinnaGeo = new THREE.BufferGeometry();
+  seamlessPinnaGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  seamlessPinnaGeo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  seamlessPinnaGeo.setIndex(indices);
+  seamlessPinnaGeo.computeVertexNormals();
+
+  return seamlessPinnaGeo;
 }
 
 // ==========================================

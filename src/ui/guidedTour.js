@@ -8,8 +8,8 @@ export const TOUR_STEPS = [
     stepNumber: 1,
     title: 'Stage 1: Acoustic Air Conduction (External Ear)',
     badge: 'Outer Ear',
-    cameraPos: new THREE.Vector3(3.8, 1.8, 4.5),
-    targetPos: new THREE.Vector3(-1.5, 0.2, 0.1),
+    cameraPos: new THREE.Vector3(5.4, 0.8, 3.2),
+    targetPos: new THREE.Vector3(-0.8, 0.2, 0.15),
     frequency: 1000,
     landmarkId: 'canal',
     description: `

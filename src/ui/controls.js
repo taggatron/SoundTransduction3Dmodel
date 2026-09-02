@@ -212,8 +212,8 @@ export class UIController {
     switch (region) {
       case 'external':
         this.annotManager.flyTo(
-          new THREE.Vector3(2.2, 1.4, 4.2),
-          new THREE.Vector3(-1.8, 0.2, 0.0),
+          new THREE.Vector3(5.8, 0.4, 2.5),
+          new THREE.Vector3(-0.4, 0.2, 0.15),
           1.2
         );
         break;

@@ -75,24 +75,13 @@ export class EarModel {
   }
 
   buildExternalEar() {
-    // 1. Pinna / Auricle
-    const pinnaGeos = createPinnaGeometry();
-    const pinnaGroup = new THREE.Group();
-    pinnaGroup.name = 'Pinna_Auricle';
-
-    pinnaGroup.add(new THREE.Mesh(pinnaGeos.helixGeo, this.materials.pinna));
-    pinnaGroup.add(new THREE.Mesh(pinnaGeos.antihelixGeo, this.materials.pinna));
-    pinnaGroup.add(new THREE.Mesh(pinnaGeos.supCrusGeo, this.materials.pinna));
-    pinnaGroup.add(new THREE.Mesh(pinnaGeos.infCrusGeo, this.materials.pinna));
-    pinnaGroup.add(new THREE.Mesh(pinnaGeos.conchaGeo, this.materials.pinna));
-    pinnaGroup.add(new THREE.Mesh(pinnaGeos.tragusGeo, this.materials.pinna));
-    pinnaGroup.add(new THREE.Mesh(pinnaGeos.antitragusGeo, this.materials.pinna));
-    pinnaGroup.add(new THREE.Mesh(pinnaGeos.lobeGeo, this.materials.pinna));
-    pinnaGroup.add(new THREE.Mesh(pinnaGeos.backPlateGeo, this.materials.pinna));
-
-    // Place Pinna at lateral origin
-    pinnaGroup.position.set(0.5, 0, 0);
-    this.externalEarGroup.add(pinnaGroup);
+    // 1. Unified Seamless Pinna / Auricle
+    const pinnaGeo = createPinnaGeometry();
+    this.pinnaMesh = new THREE.Mesh(pinnaGeo, this.materials.pinna);
+    this.pinnaMesh.name = 'Pinna_Auricle';
+    // Perfectly aligned with the ear canal opening at (-0.4, 0.2, 0.15)
+    this.pinnaMesh.position.set(0, 0, 0);
+    this.externalEarGroup.add(this.pinnaMesh);
 
     // 2. Ear Canal (External Auditory Meatus)
     this.canalPath = createEarCanalPath();
