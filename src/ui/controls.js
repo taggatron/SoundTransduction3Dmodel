@@ -43,6 +43,15 @@ export class UIController {
     this.btnResetCam = document.getElementById('btn-reset-cam');
     this.regionTabs = document.querySelectorAll('.nav-tab-btn');
 
+    // Collapsible Dock Elements
+    this.soundDock = document.getElementById('sound-dock');
+    this.soundDockHeader = document.getElementById('sound-dock-header');
+    this.btnToggleSoundDock = document.getElementById('btn-toggle-sound-dock');
+
+    this.viewDock = document.getElementById('view-dock');
+    this.viewDockHeader = document.getElementById('view-dock-header');
+    this.btnToggleViewDock = document.getElementById('btn-toggle-view-dock');
+
     this.btnStartTour = document.getElementById('btn-start-tour');
     this.tourHud = document.getElementById('tour-hud');
     this.btnExitTour = document.getElementById('btn-exit-tour');
@@ -181,6 +190,37 @@ export class UIController {
     this.btnCloseInspector.addEventListener('click', () => {
       this.hideInspector();
     });
+
+    // 12. Collapsible Docks (Sound Wave Engine & View Docks)
+    const toggleSound = (e) => {
+      if (e.target.closest('#btn-play-pause')) return;
+      this.soundDock.classList.toggle('collapsed');
+    };
+    if (this.btnToggleSoundDock) {
+      this.btnToggleSoundDock.addEventListener('click', toggleSound);
+    }
+    if (this.soundDockHeader) {
+      this.soundDockHeader.addEventListener('click', (e) => {
+        if (this.soundDock.classList.contains('collapsed')) {
+          toggleSound(e);
+        }
+      });
+    }
+
+    const toggleView = (e) => {
+      if (e.target.closest('#btn-reset-cam')) return;
+      this.viewDock.classList.toggle('collapsed');
+    };
+    if (this.btnToggleViewDock) {
+      this.btnToggleViewDock.addEventListener('click', toggleView);
+    }
+    if (this.viewDockHeader) {
+      this.viewDockHeader.addEventListener('click', (e) => {
+        if (this.viewDock.classList.contains('collapsed')) {
+          toggleView(e);
+        }
+      });
+    }
   }
 
   updateFrequency(freq) {

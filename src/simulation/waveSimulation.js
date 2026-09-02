@@ -17,9 +17,9 @@ export class WaveSimulation {
     this.frequency = 1000; // Hz
     this.amplitude = 1.0;  // 0.0 to 2.0
     this.speed = 0.5;      // Animation time scale
-    this.isPlaying = true;
+    this.isPlaying = false; // Initially paused
     this.showWaves = true;
-    this.showNervePulses = true;
+    this.showNervePulses = false; // Initially off
     this.time = 0;
 
     // Base transform caches for mechanical parts
@@ -165,6 +165,7 @@ export class WaveSimulation {
     });
 
     this.nervePulses = new THREE.Points(npGeo, npMat);
+    this.nervePulses.visible = this.showNervePulses;
     if (this.earModel.nerveGroup) {
       this.earModel.nerveGroup.add(this.nervePulses);
     }

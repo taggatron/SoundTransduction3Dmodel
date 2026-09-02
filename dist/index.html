@@ -8,8 +8,8 @@
       name="description"
       content="Photorealistic, anatomically accurate 3D simulation of the human external, middle, and inner ear with interactive sound wave transmission physics, tonotopic cochlear resonance, and neural action potentials."
     />
-    <script type="module" crossorigin src="/assets/index-BHWUMKO-.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-CnPCJKrD.css">
+    <script type="module" crossorigin src="/assets/index-DPm4RbfG.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BJ0POUYy.css">
   </head>
   <body>
     <!-- Three.js 3D WebGL Viewport Canvas -->
@@ -59,138 +59,152 @@
       <!-- MAIN CONTENT: DOCKS -->
       <main class="main-viewport-content">
         <!-- LEFT DOCK: SOUND TRANSMISSION & AUDIO CONTROLS -->
-        <aside class="panel-dock" id="sound-dock">
-          <div class="panel-header">
+        <aside class="panel-dock collapsed" id="sound-dock">
+          <div class="panel-header" id="sound-dock-header">
             <div class="panel-title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 10v3"/><path d="M6 6v11"/><path d="M10 3v18"/><path d="M14 8v7"/><path d="M18 5v13"/><path d="M22 10v3"/></svg>
               Sound Wave Engine
             </div>
-            <button class="control-btn primary" id="btn-play-pause" style="width: auto; padding: 4px 10px; font-size: 11px;">
-              <span id="play-pause-icon">⏸</span> <span id="play-pause-text">Pause</span>
-            </button>
-          </div>
-
-          <!-- Playback Speed -->
-          <div class="panel-section">
-            <div class="section-label">
-              <span>Simulation Speed</span>
-              <span class="value-badge" id="speed-badge">0.5x</span>
-            </div>
-            <div class="slider-container">
-              <input type="range" id="slider-speed" min="0.1" max="2.0" step="0.1" value="0.5" />
-            </div>
-          </div>
-
-          <!-- Frequency Tone Presets -->
-          <div class="panel-section">
-            <div class="section-label">
-              <span>Acoustic Frequency</span>
-              <span class="value-badge" id="freq-badge">1,000 Hz</span>
-            </div>
-            <div class="freq-pill-grid">
-              <button class="pill-btn" data-freq="250">250 Hz (Bass)</button>
-              <button class="pill-btn" data-freq="500">500 Hz</button>
-              <button class="pill-btn active" data-freq="1000">1 kHz (Mid)</button>
-              <button class="pill-btn" data-freq="2000">2 kHz</button>
-              <button class="pill-btn" data-freq="4000">4 kHz (Speech)</button>
-              <button class="pill-btn" data-freq="8000">8 kHz (Treble)</button>
-            </div>
-            <div class="slider-container" style="margin-top: 4px;">
-              <input type="range" id="slider-freq" min="100" max="8000" step="50" value="1000" />
-            </div>
-          </div>
-
-          <!-- Web Audio Tone Generator -->
-          <div class="panel-section">
-            <div class="section-label">
-              <span>Audible Sound (Web Audio)</span>
-              <span class="value-badge" id="audio-status-badge">Muted</span>
-            </div>
-            <div class="playback-bar">
-              <button class="control-btn" id="btn-toggle-audio">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
-                <span id="audio-btn-label">Unmute Tone</span>
+            <div class="panel-header-actions">
+              <button class="control-btn" id="btn-play-pause" style="width: auto; padding: 4px 10px; font-size: 11px;">
+                <span id="play-pause-icon">▶</span> <span id="play-pause-text">Play</span>
               </button>
-              <input type="range" id="slider-volume" min="0.01" max="0.5" step="0.01" value="0.15" title="Volume" style="width: 90px;" />
+              <button class="panel-toggle-btn" id="btn-toggle-sound-dock" title="Expand / Collapse panel">
+                <span class="dock-arrow">▾</span>
+              </button>
             </div>
-            <!-- Oscilloscope Canvas -->
-            <div class="oscilloscope-box">
-              <canvas id="oscilloscope-canvas" width="280" height="52"></canvas>
+          </div>
+
+          <div class="panel-body">
+            <!-- Playback Speed -->
+            <div class="panel-section">
+              <div class="section-label">
+                <span>Simulation Speed</span>
+                <span class="value-badge" id="speed-badge">0.5x</span>
+              </div>
+              <div class="slider-container">
+                <input type="range" id="slider-speed" min="0.1" max="2.0" step="0.1" value="0.5" />
+              </div>
+            </div>
+
+            <!-- Frequency Tone Presets -->
+            <div class="panel-section">
+              <div class="section-label">
+                <span>Acoustic Frequency</span>
+                <span class="value-badge" id="freq-badge">1,000 Hz</span>
+              </div>
+              <div class="freq-pill-grid">
+                <button class="pill-btn" data-freq="250">250 Hz (Bass)</button>
+                <button class="pill-btn" data-freq="500">500 Hz</button>
+                <button class="pill-btn active" data-freq="1000">1 kHz (Mid)</button>
+                <button class="pill-btn" data-freq="2000">2 kHz</button>
+                <button class="pill-btn" data-freq="4000">4 kHz (Speech)</button>
+                <button class="pill-btn" data-freq="8000">8 kHz (Treble)</button>
+              </div>
+              <div class="slider-container" style="margin-top: 4px;">
+                <input type="range" id="slider-freq" min="100" max="8000" step="50" value="1000" />
+              </div>
+            </div>
+
+            <!-- Web Audio Tone Generator -->
+            <div class="panel-section">
+              <div class="section-label">
+                <span>Audible Sound (Web Audio)</span>
+                <span class="value-badge" id="audio-status-badge">Muted</span>
+              </div>
+              <div class="playback-bar">
+                <button class="control-btn" id="btn-toggle-audio">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                  <span id="audio-btn-label">Unmute Tone</span>
+                </button>
+                <input type="range" id="slider-volume" min="0.01" max="0.5" step="0.01" value="0.15" title="Volume" style="width: 90px;" />
+              </div>
+              <!-- Oscilloscope Canvas -->
+              <div class="oscilloscope-box">
+                <canvas id="oscilloscope-canvas" width="280" height="52"></canvas>
+              </div>
             </div>
           </div>
         </aside>
 
         <!-- RIGHT DOCK: 3D VIEW & ANATOMY MODES -->
-        <aside class="panel-dock" id="view-dock">
-          <div class="panel-header">
+        <aside class="panel-dock collapsed" id="view-dock">
+          <div class="panel-header" id="view-dock-header">
             <div class="panel-title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
               View & Display
             </div>
-            <button class="control-btn" id="btn-reset-cam" style="width: auto; padding: 4px 8px; font-size: 11px;">
-              Reset View
-            </button>
-          </div>
-
-          <!-- Exploded View Slider -->
-          <div class="panel-section">
-            <div class="section-label">
-              <span>Exploded Anatomical View</span>
-              <span class="value-badge" id="exploded-badge">0%</span>
-            </div>
-            <div class="slider-container">
-              <input type="range" id="slider-exploded" min="0" max="1" step="0.01" value="0" />
+            <div class="panel-header-actions">
+              <button class="control-btn" id="btn-reset-cam" style="width: auto; padding: 4px 8px; font-size: 11px;">
+                Reset View
+              </button>
+              <button class="panel-toggle-btn" id="btn-toggle-view-dock" title="Expand / Collapse panel">
+                <span class="dock-arrow">▾</span>
+              </button>
             </div>
           </div>
 
-          <!-- X-Ray / Translucency Slider -->
-          <div class="panel-section">
-            <div class="section-label">
-              <span>Bone & Wall Opacity</span>
-              <span class="value-badge" id="opacity-badge">100%</span>
+          <div class="panel-body">
+            <!-- Exploded View Slider -->
+            <div class="panel-section">
+              <div class="section-label">
+                <span>Exploded Anatomical View</span>
+                <span class="value-badge" id="exploded-badge">0%</span>
+              </div>
+              <div class="slider-container">
+                <input type="range" id="slider-exploded" min="0" max="1" step="0.01" value="0" />
+              </div>
             </div>
-            <div class="slider-container">
-              <input type="range" id="slider-opacity" min="0.0" max="1.0" step="0.02" value="1.0" />
-            </div>
-          </div>
 
-          <!-- Feature Toggles -->
-          <div class="panel-section">
-            <div class="section-label">
-              <span>Visual Layers</span>
+            <!-- X-Ray / Translucency Slider -->
+            <div class="panel-section">
+              <div class="section-label">
+                <span>Bone & Wall Opacity</span>
+                <span class="value-badge" id="opacity-badge">100%</span>
+              </div>
+              <div class="slider-container">
+                <input type="range" id="slider-opacity" min="0.0" max="1.0" step="0.02" value="1.0" />
+              </div>
             </div>
-            <div class="toggle-row">
-              <span class="toggle-label">
-                <span style="color: var(--accent-cyan);">●</span> Acoustic Wavefronts
-              </span>
-              <label class="switch">
-                <input type="checkbox" id="toggle-waves" checked />
-                <span class="slider-round"></span>
-              </label>
-            </div>
-            <div class="toggle-row">
-              <span class="toggle-label">
-                <span style="color: var(--accent-gold);">●</span> Neural Action Potentials (CN VIII)
-              </span>
-              <label class="switch">
-                <input type="checkbox" id="toggle-nerves" checked />
-                <span class="slider-round"></span>
-              </label>
-            </div>
-            <div class="toggle-row">
-              <span class="toggle-label">
-                <span style="color: #38bdf8;">●</span> 3D Anatomical Pins
-              </span>
-              <label class="switch">
-                <input type="checkbox" id="toggle-pins" checked />
-                <span class="slider-round"></span>
-              </label>
-            </div>
-          </div>
 
-          <div class="panel-section" style="border-top: 1px solid var(--border-subtle); padding-top: 10px;">
-            <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
-              💡 <strong>Tip:</strong> Left-click & drag to rotate • Right-click to pan • Scroll to zoom • Click any glowing 3D pin to inspect its acoustic function.
+            <!-- Feature Toggles -->
+            <div class="panel-section">
+              <div class="section-label">
+                <span>Visual Layers</span>
+              </div>
+              <div class="toggle-row">
+                <span class="toggle-label">
+                  <span style="color: var(--accent-cyan);">●</span> Acoustic Wavefronts
+                </span>
+                <label class="switch">
+                  <input type="checkbox" id="toggle-waves" checked />
+                  <span class="slider-round"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <span class="toggle-label">
+                  <span style="color: var(--accent-gold);">●</span> Neural Action Potentials (CN VIII)
+                </span>
+                <label class="switch">
+                  <input type="checkbox" id="toggle-nerves" />
+                  <span class="slider-round"></span>
+                </label>
+              </div>
+              <div class="toggle-row">
+                <span class="toggle-label">
+                  <span style="color: #38bdf8;">●</span> 3D Anatomical Pins
+                </span>
+                <label class="switch">
+                  <input type="checkbox" id="toggle-pins" checked />
+                  <span class="slider-round"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="panel-section" style="border-top: 1px solid var(--border-subtle); padding-top: 10px;">
+              <div style="font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+                💡 <strong>Tip:</strong> Left-click & drag to rotate • Right-click to pan • Scroll to zoom • Click any glowing 3D pin to inspect its acoustic function.
+              </div>
             </div>
           </div>
         </aside>
