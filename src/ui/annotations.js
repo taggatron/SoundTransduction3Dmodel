@@ -67,7 +67,64 @@ export class AnnotationManager {
         sphere,
         ring,
         landmark,
+        basePosition: landmark.position.clone(),
       });
+    });
+  }
+
+  getLandmarkOffset(landmark, factor) {
+    const id = landmark.id;
+    const region = landmark.region || '';
+
+    // External ear structures slide laterally (+X by factor * 2.8)
+    if (
+      id === 'pinna' ||
+      id === 'canal' ||
+      id === 'tympanic' ||
+      region.includes('External') ||
+      region.includes('Outer')
+    ) {
+      return factor * 2.8;
+    }
+
+    // Middle ear structures (ossicles, windows, muscles, tube) shift by factor * 0.4
+    if (
+      id === 'malleus' ||
+      id === 'incus' ||
+      id === 'stapes' ||
+      id === 'eustachian' ||
+      id === 'oval_window' ||
+      id === 'round_window' ||
+      id === 'tensor_tympani' ||
+      region.includes('Middle')
+    ) {
+      return factor * 0.4;
+    }
+
+    // Inner ear structures (cochlea, canals, basilar membrane, CN VIII) slide medially (-X by factor * 3.2)
+    if (
+      id === 'cochlea' ||
+      id === 'semicircular_canals' ||
+      id === 'basilar_membrane' ||
+      id === 'auditory_nerve' ||
+      region.includes('Inner') ||
+      region.includes('Neural')
+    ) {
+      return -factor * 3.2;
+    }
+
+    return 0;
+  }
+
+  /**
+   * Smoothly updates 3D pin locations to match their moving anatomical parts in exploded view
+   * @param {number} factor 0.0 (assembled) to 1.0 (fully exploded)
+   */
+  updateExplodedFactor(factor) {
+    this.currentExplodedFactor = factor;
+    this.pinMeshes.forEach((pin) => {
+      const offsetX = this.getLandmarkOffset(pin.landmark, factor);
+      pin.container.position.x = pin.basePosition.x + offsetX;
     });
   }
 
@@ -115,10 +172,12 @@ export class AnnotationManager {
   }
 
   focusOnLandmark(landmark) {
-    // Position camera offset from landmark
+    // Position camera offset from landmark's current 3D position (including exploded offset)
+    const pin = this.pinMeshes.find((p) => p.landmark.id === landmark.id);
+    const targetPos = pin ? pin.container.position.clone() : landmark.position.clone();
     const offset = new THREE.Vector3(2.5, 1.2, 3.2);
-    const camPos = landmark.position.clone().add(offset);
-    this.flyTo(camPos, landmark.position, 1.2);
+    const camPos = targetPos.clone().add(offset);
+    this.flyTo(camPos, targetPos, 1.2);
     this.highlightPin(landmark.id);
   }
 

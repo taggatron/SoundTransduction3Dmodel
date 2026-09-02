@@ -292,6 +292,10 @@ export class EarModel {
     if (this.temporalBoneMesh) {
       this.temporalBoneMesh.material.opacity = Math.max(0, 0.25 * (1 - factor * 1.5));
     }
+
+    if (typeof this.onExplodedViewChange === 'function') {
+      this.onExplodedViewChange(factor);
+    }
   }
 
   /**

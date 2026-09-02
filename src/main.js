@@ -109,6 +109,11 @@ class EarApplication {
       }
     );
 
+    // Synchronize 3D pin positions with moving exploded view compartments
+    this.earModel.onExplodedViewChange = (factor) => {
+      this.annotManager.updateExplodedFactor(factor);
+    };
+
     this.uiCtrl = new UIController({
       earModel: this.earModel,
       waveSim: this.waveSim,
